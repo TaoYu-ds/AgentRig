@@ -502,7 +502,7 @@ _cached_rules_signature = None
 def load_permission_rules() -> dict:
     global _cached_rules, _cached_rules_signature
     from .project_trust import is_project_trusted, trust_file
-    paths = [Path.home() / ".bear" / "settings.json", Path.cwd() / ".bear" / "settings.json",
+    paths = [Path.home() / ".agent-rig" / "settings.json", Path.cwd() / ".agent-rig" / "settings.json",
              Path.cwd() / ".mcp.json", trust_file()]
     def signature(path):
         try:
@@ -516,8 +516,8 @@ def load_permission_rules() -> dict:
     allow: list[dict] = []
     deny: list[dict] = []
 
-    user_settings = _load_settings(Path.home() / ".bear" / "settings.json")
-    project_settings = _load_settings(Path.cwd() / ".bear" / "settings.json")
+    user_settings = _load_settings(Path.home() / ".agent-rig" / "settings.json")
+    project_settings = _load_settings(Path.cwd() / ".agent-rig" / "settings.json")
 
     for settings, trusted in [(user_settings, True), (project_settings, is_project_trusted())]:
         if not settings or "permissions" not in settings:

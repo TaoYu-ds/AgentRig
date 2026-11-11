@@ -39,7 +39,7 @@ COOKIE_BEAR = r"""
 
 
 def print_welcome() -> None:
-    title = Text("Bear Code", style="bold #f6c177")
+    title = Text("AgentRig", style="bold #f6c177")
     subtitle = Text("Evolvable Coding Agent CLI", style="bold cyan")
     cookie = Text(COOKIE_BEAR, style="bold #d19a66")
 
@@ -64,7 +64,7 @@ def print_welcome() -> None:
     console.print()
     console.print(Panel(
         body,
-        title="[bold #f6c177] bear cookie ready [/bold #f6c177]",
+        title="[bold #f6c177] AgentRig session ready [/bold #f6c177]",
         subtitle="[dim]Type your request below[/dim]",
         border_style="#d19a66",
         box=box.ROUNDED,
@@ -74,7 +74,7 @@ def print_welcome() -> None:
 
 
 def print_user_prompt() -> None:
-    console.print("\n[bold #f6c177]Bear[/bold #f6c177][bold cyan]Code[/bold cyan] [dim]❯[/dim] ", end="")
+    console.print("\n[bold #f6c177]Agent[/bold #f6c177][bold cyan]Rig[/bold cyan] [dim]❯[/dim] ", end="")
 
 
 def print_assistant_text(text: str) -> None:
@@ -209,7 +209,7 @@ def print_warning(msg: str) -> None:
 
 def print_goodbye() -> None:
     console.print(Panel(
-        Text("Bye. Bear cookie saved for next time.", style="bold #f6c177"),
+        Text("Bye. AgentRig session saved for next time.", style="bold #f6c177"),
         border_style="#d19a66",
         box=box.ROUNDED,
         padding=(0, 1),

@@ -370,7 +370,7 @@ class Conversation:
             from .online_skill_eval import format_online_skill_eval_async
             await self.agent.drain_background_skill_tasks()
             query = self.agent._build_side_query(max_tokens=2400, require_complete=True)
-            judge_model = os.getenv("BEAR_SKILL_JUDGE_MODEL")
+            judge_model = os.getenv("AGENTRIG_SKILL_JUDGE_MODEL")
             judge = self.agent._build_side_query(max_tokens=2400, require_complete=True, model_override=judge_model) if judge_model else None
             self.emit_text(await format_online_skill_eval_async(side_query=query, judge_side_query=judge))
             return True
@@ -662,7 +662,7 @@ class WebHandler(BaseHTTPRequestHandler):
         if self.close_connection:
             self.send_header("Connection", "close")
         if cookie:
-            self.send_header("Set-Cookie", f"bear_web={self.server.app.auth}; HttpOnly; SameSite=Strict; Path=/")
+            self.send_header("Set-Cookie", f"agentrig_web={self.server.app.auth}; HttpOnly; SameSite=Strict; Path=/")
         if length is not None:
             self.send_header("Content-Length", str(length))
         self.end_headers()
@@ -684,10 +684,10 @@ class WebHandler(BaseHTTPRequestHandler):
             raise WebError("拒绝跨站请求。", 403)
         if not bootstrap:
             cookies = SimpleCookie(self.headers.get("Cookie", ""))
-            auth = cookies.get("bear_web")
+            auth = cookies.get("agentrig_web")
             if not auth or not secrets.compare_digest(auth.value, self.server.app.auth):
                 raise WebError("请刷新页面重新连接本地服务。", 403)
-        if mutation and not secrets.compare_digest(self.headers.get("X-Bear-CSRF", ""), self.server.app.config["csrf"]):
+        if mutation and not secrets.compare_digest(self.headers.get("X-AgentRig-CSRF", ""), self.server.app.config["csrf"]):
             raise WebError("请求校验失败，请刷新页面。", 403)
 
     def do_GET(self):
@@ -759,7 +759,7 @@ class WebHandler(BaseHTTPRequestHandler):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Bear Code 本地深色 Web 工作台")
+    parser = argparse.ArgumentParser(description="AgentRig 本地深色 Web 工作台")
     parser.add_argument("--port", type=int, default=8765)
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
@@ -771,7 +771,7 @@ def main():
     except OSError:
         app.close()
         raise
-    print(f"Bear Code Web → http://127.0.0.1:{args.port}\n按 Ctrl+C 停止；模型配置沿用项目 .env。")
+    print(f"AgentRig Web → http://127.0.0.1:{args.port}\n按 Ctrl+C 停止；模型配置沿用项目 .env。")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -1,15 +1,15 @@
-# BearCode
+# AgentRig
 
-BearCode 是一个基于 Python 的本地 **Agent Runtime**，同时提供网页工作台和命令行入口。它把模型推理、工具执行、权限确认、会话恢复、长期记忆、Skills 与自进化流程连接在一起，适合用于项目分析、编程辅助，也适合学习和扩展 Agent 的运行机制。
+AgentRig 是一个基于 Python 的本地 **Agent Runtime**，同时提供网页工作台和命令行入口。它把模型推理、工具执行、权限确认、会话恢复、长期记忆、Skills 与自进化流程连接在一起，适合用于项目分析、编程辅助，也适合学习和扩展 Agent 的运行机制。
 
 项目重点是 **Harness**：模型提出操作意图，Runtime 负责判断权限、执行工具、保存状态和回写结果。网页与 CLI 共用这套能力。
 
 <p align="center">
-  <img src="docs/screenshot.jpg" alt="BearCode 工作台" width="880">
+  <img src="docs/workbench.jpg" alt="AgentRig 工作台" width="880">
 </p>
 
 <p align="center">
-  <sub>真实会话：让 Agent 读 <code>agents/agent.py</code> 与 <code>agents/tools.py</code>，它自行发起 4 次工具调用并给出带行号的结论；右侧是逐步工具轨迹与 Token 统计</sub>
+  <sub>真实会话：让 Agent 读 <code>agents/agent.py</code> 与 <code>agents/tools.py</code>，它自行发起文件读取与搜索并给出 4 条带行号的结论；右侧是逐步工具轨迹与 Token 统计</sub>
 </p>
 
 ## 快速启动：前端与后端
@@ -26,7 +26,7 @@ BearCode 是一个基于 Python 的本地 **Agent Runtime**，同时提供网页
 
 推荐使用 Python **3.11 或 3.12**，以下命令适用于 macOS / Linux。Git 用于获取代码，ripgrep 可选；仅运行网页工作台不需要 Node.js。运行前端测试或使用依赖 Node.js 的 MCP 工具时，再准备 Node.js 环境。
 
-在 **BearCode 仓库根目录**执行：
+在 **AgentRig 仓库根目录**执行：
 
 ```bash
 # 确认 Python 版本
@@ -50,7 +50,7 @@ python -m pip install -r requirements.lock
 test -f .env || cp .env.example .env
 ```
 
-用编辑器打开项目根目录的 `.env`，将密钥、接口地址和模型 ID 替换为你实际使用的服务配置。下面两种方式**选择一种**；如果使用服务专用变量，需要删除或注释模板里已启用的 `APIKEY`、`API`、`MINI_CLAUDE_MODEL`，避免混用配置。
+用编辑器打开项目根目录的 `.env`，将密钥、接口地址和模型 ID 替换为你实际使用的服务配置。下面两种方式**选择一种**；如果使用服务专用变量，需要删除或注释模板里已启用的 `APIKEY`、`API`、`AGENTRIG_MODEL`，避免混用配置。
 
 **OpenAI-compatible 接口：**
 
@@ -68,14 +68,14 @@ ANTHROPIC_BASE_URL=https://your-provider.example/anthropic
 MODEL=your-model-id
 ```
 
-上述地址和模型名称都是占位值，请以服务商提供的配置为准。也支持通用变量 `APIKEY` / `API`，以及兼容别名 `MINI_CLAUDE_API_KEY` / `MINI_CLAUDE_API_BASE` / `MINI_CLAUDE_MODEL`。
+上述地址和模型名称都是占位值，请以服务商提供的配置为准。也支持通用变量 `APIKEY` / `API`，以及兼容别名 `AGENTRIG_API_KEY` / `AGENTRIG_API_BASE` / `AGENTRIG_MODEL`。
 
 配置读取规则：
 
 - 从当前工作目录向上查找 `.env`；终端中已设置的同名环境变量优先于 `.env`。
-- 通用 `API` / `MINI_CLAUDE_API_BASE` 优先于服务专用的 Base URL；通用密钥也优先于服务专用密钥。
+- 通用 `API` / `AGENTRIG_API_BASE` 优先于服务专用的 Base URL；通用密钥也优先于服务专用密钥。
 - `OPENAI_BASE_URL` 与 `ANTHROPIC_BASE_URL` 明确选择各自协议；使用通用 `API` 时，原生 `api.anthropic.com`、路径以 `/anthropic` 结尾或包含 `/anthropic/` 的地址使用 Anthropic 协议，其余使用 OpenAI 协议。
-- 模型名称优先使用 `MODEL`，其次为 `MINI_CLAUDE_MODEL`；CLI 还可用 `--model` 覆盖。Web 入口通过环境配置选择模型。
+- 模型名称优先使用 `MODEL`，其次为 `AGENTRIG_MODEL`；CLI 还可用 `--model` 覆盖。Web 入口通过环境配置选择模型。
 - 修改 `.env` 后需重启服务。密钥保留在后端，不在前端页面录入或展示。
 
 暂未配置模型时，也可以打开工作台查看页面和已有数据；发送任务前需要完成配置。
@@ -92,7 +92,7 @@ python -m agents.web
 看到以下提示说明服务已经启动，请保持终端运行：
 
 ```text
-Bear Code Web → http://127.0.0.1:8765
+AgentRig Web → http://127.0.0.1:8765
 按 Ctrl+C 停止；模型配置沿用项目 .env。
 ```
 
@@ -133,7 +133,7 @@ python -m agents.web --port 8766
 | 现象 | 处理方式 |
 | --- | --- |
 | `ModuleNotFoundError: No module named 'anthropic'` 等依赖错误 | 激活 `.venv` 后重新安装 `requirements.lock`，或直接用 `.venv/bin/python` 启动 |
-| `No module named agents` | 确认终端位于 BearCode 仓库根目录 |
+| `No module named agents` | 确认终端位于 AgentRig 仓库根目录 |
 | `Address already in use` | 停止占用该端口的旧服务，或用 `--port 8766` 启动并访问新地址 |
 | 页面一直停在“正在加载”，按钮或图标无反应 | 如果刚更新代码，先重启 Python 服务再刷新页面；旧进程可能未注册新增的前端模块 |
 | 模型未配置、鉴权失败或模型不存在 | 核对密钥、Base URL、模型 ID，以及终端环境变量与 `.env` 的优先级；修改后重启 |
@@ -169,8 +169,9 @@ python -m agents.main --help
 | 环境 | 结果 |
 | --- | --- |
 | Linux（Python 3.12 容器，已装 git） | **226 个单测全部通过** |
-| Windows 11（Python 3.13） | 224/226；2 项与平台相关（MCP 子进程退出等待、独占创建的竞争时序） |
+| Windows 11（Python 3.13） | 223–224/226；剩余项为平台相关的不稳定用例（MCP 子进程退出等待、多进程计数、独占创建竞争、临时锁文件清理），每次运行失败项不完全相同，同一批用例在 Linux 全绿 |
 | 网页工作台 | `python -m agents.web` 启动后可在 `127.0.0.1:8765` 完成真实任务，截图见上 |
+| 更名后复核 | 品牌、路径、cookie、CSRF 头全量替换后，Linux 容器再次跑出 **226/226 通过** |
 
 > Windows 上曾出现 `read_file` 误报「file changed during the read」：`os.fstat()` 的 `st_ctime`
 > 与 `os.stat()` 语义不同（前者是最后写入时间，后者是创建时间）。现改为只比较
@@ -192,7 +193,7 @@ python -m agents.main --help
 
 ## 项目架构
 
-![BearCode 总体架构](wiki/assets/architecture/01-overall-architecture.svg)
+![AgentRig 总体架构](docs/architecture/01-overall-architecture.svg)
 
 核心运行链路：
 
@@ -213,7 +214,7 @@ python -m agents.main --help
 ## 目录结构
 
 ```text
-BearCode/
+AgentRig/
 ├── agents/
 │   ├── main.py                    # CLI 入口、REPL、参数解析
 │   ├── web.py                     # Web 后端：静态页面、HTTP API、SSE 流式事件
@@ -243,12 +244,11 @@ BearCode/
 │   ├── chat-scroll.mjs           # 聊天滚动控制
 │   ├── conversation-state.mjs    # 会话状态、草稿与附件
 │   └── tests/                    # 前端单元测试
-├── .bear/
+├── .agent-rig/
 │   ├── skills/                    # 项目级 Skills
 │   └── skill-evolution/           # Skills 自进化审计产物
-├── docs/                          # Web 使用与运行可靠性说明
+├── docs/                          # Web 使用说明、运行边界与架构图
 ├── tests/                         # Python 回归测试
-├── wiki/                          # 项目文档中心
 ├── Dockerfile
 ├── .env.example                  # 模型配置模板
 ├── requirements.lock             # 固定版本依赖，安装时使用
@@ -258,33 +258,33 @@ BearCode/
 
 ## Skills 自进化
 
-BearCode 的核心特色是 **Skills 自进化**。它从用户明确反馈中抽取未来可复用的规则，默认保存候选；通过评测或明确的人工审核后，才发布到项目级或用户级 `SKILL.md`。
+AgentRig 的核心特色是 **Skills 自进化**。它从用户明确反馈中抽取未来可复用的规则，默认保存候选；通过评测或明确的人工审核后，才发布到项目级或用户级 `SKILL.md`。
 
 ### 1. 开启自动自进化
 
-默认 `BEAR_AUTO_SKILL_EVOLUTION` 是开启的。为了明确配置，建议在 `.env` 中写：
+默认 `AGENTRIG_AUTO_SKILL_EVOLUTION` 是开启的。为了明确配置，建议在 `.env` 中写：
 
 ```env
-BEAR_AUTO_SKILL_EVOLUTION=1
-BEAR_AUTO_SKILL_TARGET=project
+AGENTRIG_AUTO_SKILL_EVOLUTION=1
+AGENTRIG_AUTO_SKILL_TARGET=project
 ```
 
 含义：
 
-- `BEAR_AUTO_SKILL_EVOLUTION=1`：启用在线 Skill 自进化。
-- `BEAR_AUTO_SKILL_TARGET=project`：自动新增的 Skill 写入当前项目 `.bear/skills/`。
+- `AGENTRIG_AUTO_SKILL_EVOLUTION=1`：启用在线 Skill 自进化。
+- `AGENTRIG_AUTO_SKILL_TARGET=project`：自动新增的 Skill 写入当前项目 `.agent-rig/skills/`。
 
 如果希望沉淀为所有项目共享的个人 Skill：
 
 ```env
-BEAR_AUTO_SKILL_TARGET=user
+AGENTRIG_AUTO_SKILL_TARGET=user
 ```
 
 对应路径：
 
 ```text
-project: <project>/.bear/skills/<skill_name>/SKILL.md
-user:    ~/.bear/skills/<skill_name>/SKILL.md
+project: <project>/.agent-rig/skills/<skill_name>/SKILL.md
+user:    ~/.agent-rig/skills/<skill_name>/SKILL.md
 ```
 
 ### 2. 用允许写入的权限模式启动
@@ -292,8 +292,8 @@ user:    ~/.bear/skills/<skill_name>/SKILL.md
 后台保存 Skill 候选需要当前权限模式允许维护操作。推荐使用：
 
 ```bash
-BEAR_AUTO_SKILL_EVOLUTION=1 \
-BEAR_AUTO_SKILL_TARGET=project \
+AGENTRIG_AUTO_SKILL_EVOLUTION=1 \
+AGENTRIG_AUTO_SKILL_TARGET=project \
 python -m agents.main --accept-edits
 ```
 
@@ -358,18 +358,18 @@ agents/skill_evolution.py
 审计产物：
 
 ```text
-.bear/skill-evolution/usage.jsonl
-.bear/skill-evolution/online_provenance.jsonl
-.bear/skill-evolution/online_skill_provenance.json
-.bear/skill-evolution/skill_usage_stats.json
-.bear/skill-evolution/history/
+.agent-rig/skill-evolution/usage.jsonl
+.agent-rig/skill-evolution/online_provenance.jsonl
+.agent-rig/skill-evolution/online_skill_provenance.json
+.agent-rig/skill-evolution/skill_usage_stats.json
+.agent-rig/skill-evolution/history/
 ```
 
 ## 在线 Skill 回归评测
 
 REPL 中运行 `/skill-eval`。首次生成 `replay_review.jsonl`，选择“原任务重做 / 反馈修正”、绑定目标消息轮次，确认会话归属和验收条件后再次运行。题目和上下文从来源重建，重复目标只计一次。当前版、候选和已有冠军在同一批任务上重新作答；同会话窗口固定分组，样本数与模型调用量有上限，异常或不完整比较不会晋级。
 
-这些是文本任务的回归检查，来源可能参与过 Skill 学习，不代表独立 benchmark 成绩。规则不再从 Skill 关键词自动猜测；冠军快照单独保存。当前 `requirements` 的字符串默认必须通过，可选项使用 `{"text":"要求", "required":false}`，关键失败不能靠其他分数抵消。`json_schema` 检查可校验字段及类型，`BEAR_SKILL_JUDGE_MODEL` 可单独指定同服务的裁判模型。
+这些是文本任务的回归检查，来源可能参与过 Skill 学习，不代表独立 benchmark 成绩。规则不再从 Skill 关键词自动猜测；冠军快照单独保存。当前 `requirements` 的字符串默认必须通过，可选项使用 `{"text":"要求", "required":false}`，关键失败不能靠其他分数抵消。`json_schema` 检查可校验字段及类型，`AGENTRIG_SKILL_JUDGE_MODEL` 可单独指定同服务的裁判模型。
 
 新 Skill 或缺少独立回放样本时，可在审阅后明确使用 `/skill-apply <id> --manual-review`；这是人工发布，不代表通过评测。后台任务有并发上限并保存待办；来源日志按增量索引读取。`/cleanup-state [days]` 预览旧工具结果和评测运行目录，明确加 `--apply` 才删除，当前冠军运行目录保留。
 
@@ -379,11 +379,11 @@ REPL 中运行 `/skill-eval`。首次生成 `replay_review.jsonl`，选择“原
 
 默认只恢复当前项目的最近更新会话。也可使用 `--resume-id <会话ID>` 指定会话；项目路径或 API 协议不一致时拒绝恢复，避免把其他项目的操作上下文带入当前目录。
 
-恢复会话也保留 Skill 学习上下文、待反馈窗口和稳定的对话分组。未知模型默认按 32000 token 容量处理，可通过 `--context-window N` 或 `BEAR_CONTEXT_WINDOW` 指定实际容量。
+恢复会话也保留 Skill 学习上下文、待反馈窗口和稳定的对话分组。未知模型默认按 32000 token 容量处理，可通过 `--context-window N` 或 `AGENTRIG_CONTEXT_WINDOW` 指定实际容量。
 
-预算覆盖主模型、辅助调用及运行中的子 Agent，`/clear` 只清理上下文，不重置本次进程的累计费用。默认输入/输出估价仍为每百万 token 3/15 美元，可通过 `--input-price`、`--output-price` 或 `.env` 的 `BEAR_INPUT_PRICE_PER_MILLION`、`BEAR_OUTPUT_PRICE_PER_MILLION` 修改。预算是基于已返回用量的估算；已发出的并发请求、SDK 内部重试和失败请求的未知用量仍可能超出估算上限。
+预算覆盖主模型、辅助调用及运行中的子 Agent，`/clear` 只清理上下文，不重置本次进程的累计费用。默认输入/输出估价仍为每百万 token 3/15 美元，可通过 `--input-price`、`--output-price` 或 `.env` 的 `AGENTRIG_INPUT_PRICE_PER_MILLION`、`AGENTRIG_OUTPUT_PRICE_PER_MILLION` 修改。预算是基于已返回用量的估算；已发出的并发请求、SDK 内部重试和失败请求的未知用量仍可能超出估算上限。
 
-Ctrl+C 会取消当前任务；Shell 超时和取消会清理其进程组（macOS/Linux）。退出时会关闭模型客户端和 MCP，并最多等待后台 Skill 任务 5 秒，再取消未完成任务；可用 `BEAR_SHUTDOWN_TIMEOUT` 调整等待时间。
+Ctrl+C 会取消当前任务；Shell 超时和取消会清理其进程组（macOS/Linux）。退出时会关闭模型客户端和 MCP，并最多等待后台 Skill 任务 5 秒，再取消未完成任务；可用 `AGENTRIG_SHUTDOWN_TIMEOUT` 调整等待时间。
 
 `/skill-eval` 会等待当前后台 Skill 任务完成，再读取来源记录和技能快照；此等待不使用退出超时，也不会因此取消学习任务。
 
@@ -399,22 +399,22 @@ Session、Skill 统计、来源索引和评测状态使用临时文件原子替�
 
 ## 折叠对照评测
 
-BearCode 早期自行试跑折叠评测时，得到的数据偏低。因此，Wiki 中用于说明 GAIA / HLE 指标和记忆折叠消融的 `53.3%`、`20.2%`、`44.7%` **直接复用 [DeepAgent 论文](paper/deepAgents.pdf)的结果**，用于展示论文方法的量化参照。数据集和评测入口都在仓库中，想了解 BearCode 在自己配置下的表现，可以自行运行。
+AgentRig 早期自行试跑折叠评测时，得到的数据偏低。因此，[项目评测.md](项目评测.md) 中用于说明 GAIA / HLE 指标和记忆折叠消融的 `53.3%`、`20.2%`、`44.7%` **直接复用 [DeepAgent 论文](paper/deepAgents.pdf)的结果**，用于展示论文方法的量化参照。数据集和评测入口都在仓库中，想了解 AgentRig 在自己配置下的表现，可以自行运行。
 
 先校验案例，再运行同题的折叠开启/关闭对照。运行命令会调用模型；结果会保存逐题答案、判分、折叠前后的轨迹和汇总。
 
 ```bash
-python -m agents.eval_folding --cases data/folding_eval_smoke.jsonl --output .bear/folding-eval/smoke-001 --validate-only
-python -m agents.eval_folding --cases data/folding_eval_smoke.jsonl --output .bear/folding-eval/smoke-001 --fold-after-turn 2
+python -m agents.eval_folding --cases data/folding_eval_smoke.jsonl --output .agent-rig/folding-eval/smoke-001 --validate-only
+python -m agents.eval_folding --cases data/folding_eval_smoke.jsonl --output .agent-rig/folding-eval/smoke-001 --fold-after-turn 2
 ```
 
-评测入口默认采用参考 DeepAgent 源码的三路并行记忆生成（事件、工作、工具）和每题最多 3 次折叠；可通过 `--fold-memory-mode single_json`、`--max-fold-limit N` 做本项目内部对照。`--fold-after-turn` 是 BearCode 为短样例增加的固定触发，不是论文原始触发方式。此入口的工具环境与判分器仍不同于论文，生成的分数不能直接对标论文表格。
+评测入口默认采用参考 DeepAgent 源码的三路并行记忆生成（事件、工作、工具）和每题最多 3 次折叠；可通过 `--fold-memory-mode single_json`、`--max-fold-limit N` 做本项目内部对照。`--fold-after-turn` 是 AgentRig 为短样例增加的固定触发，不是论文原始触发方式。此入口的工具环境与判分器仍不同于论文，生成的分数不能直接对标论文表格。
 
-汇总只对两组都完成、开启组确实折叠、关闭组未折叠且题目工具需求已审核的配对计算正确率；无效配对和原因保留在 `summary.json`。原始 GAIA/HLE 题目需先逐题审核所需工具并整理为带 `required_tools` 的 JSONL，文本题也可能需要当前入口不具备的联网能力。`review_queue.jsonl` 保存需人工复核的预测，详情见 Wiki。
+汇总只对两组都完成、开启组确实折叠、关闭组未折叠且题目工具需求已审核的配对计算正确率；无效配对和原因保留在 `summary.json`。原始 GAIA/HLE 题目需先逐题审核所需工具并整理为带 `required_tools` 的 JSONL，文本题也可能需要当前入口不具备的联网能力。`review_queue.jsonl` 保存需人工复核的预测，详情见 [项目评测.md](项目评测.md)。
 
 为避免单次模型回复过长，评测默认将主模型每次回复限制为 2048 token，可用 `--max-output-tokens` 调整；`--max-cost` 是回复完成后的估算检查，不能代替单次输出上限。
 
-样例仅用于确认评测链路；论文数字的出处、自行评测方式和结果口径见 [Wiki 评测部分](wiki/折叠评测部分.md)及 [项目评测.md](项目评测.md)。
+样例仅用于确认评测链路；论文数字的出处、自行评测方式和结果口径见 [项目评测.md](项目评测.md)。
 
 ## 开发验证
 
@@ -444,12 +444,7 @@ node --test web/tests/*.test.mjs
 
 - [Web 工作台：界面功能、启动与运行边界](docs/web-workspace.md)
 - [运行可靠性与 Skills 发布流程](docs/runtime-hardening.md)
-- [从 0 到 1 学习了解项目](wiki/从0到1学习了解项目.md)
-- [架构设计](wiki/架构设计.md)
-- [核心源码阅读指南](wiki/核心源码阅读指南.md)
-- [技术亮点](wiki/技术亮点.md)
-- [Skills 自进化逻辑与实现思路](wiki/Skills自进化逻辑与实现思路.md)
 
 ## 来源与许可
 
-本项目的基础 Agent Runtime 参考并复用了 [claude-code-from-scratch](https://github.com/Windy3f3f3f3f/claude-code-from-scratch) 的实现，包括工具、提示词、Memory、MCP 和子 Agent 等模块。上游代码采用 MIT 许可，原作者版权与完整许可文本见仓库根目录 [LICENSE](LICENSE)。BearCode 在此基础上进行了修改和扩展。
+本项目的基础 Agent Runtime 参考并复用了 [claude-code-from-scratch](https://github.com/Windy3f3f3f3f/claude-code-from-scratch) 的实现，包括工具、提示词、Memory、MCP 和子 Agent 等模块。上游代码采用 MIT 许可，原作者版权与完整许可文本见仓库根目录 [LICENSE](LICENSE)。AgentRig 在此基础上进行了修改和扩展。

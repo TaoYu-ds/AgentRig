@@ -1,4 +1,4 @@
-"""Paired, per-question evaluation of BearCode's full session folding."""
+"""Paired, per-question evaluation of AgentRig's full session folding."""
 
 from __future__ import annotations
 
@@ -347,7 +347,7 @@ def _git_head() -> str:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Paired BearCode folding evaluation")
+    parser = argparse.ArgumentParser(description="Paired AgentRig folding evaluation")
     parser.add_argument("--cases", type=Path, required=True, help="JSON array or JSONL with id/task_id, prompt(s), answer(s)")
     parser.add_argument("--output", type=Path, required=True, help="New output directory; existing paths are rejected")
     parser.add_argument("--text-only", action="store_true", help="Skip multimodal and attached-file cases")

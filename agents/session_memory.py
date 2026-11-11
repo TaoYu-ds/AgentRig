@@ -53,7 +53,7 @@ Guidelines:
 
 
 # DeepAgent generates these three memories with independent concurrent model calls.
-# Keep the schema local to BearCode so malformed output from one call cannot silently
+# Keep the schema local to AgentRig so malformed output from one call cannot silently
 # turn the other two memories into empty objects.
 FOLD_COMPONENT_SYSTEMS = {
     "episode_memory": "Return only a JSON object with task_description (string), key_events (array of objects with step, description, outcome, all strings), and current_progress (string). All fields are required; use empty strings or arrays for absent data. Summarize the user's goal, important events, and progress. Preserve concrete constraints and results. Do not invent facts.",

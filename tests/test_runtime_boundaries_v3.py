@@ -141,12 +141,12 @@ class RuntimeBoundariesTests(unittest.IsolatedAsyncioTestCase):
                 agent._auto_save = measure
                 raw = "BEGIN\n" + "x" * (1024 * 1024) + "\nEND"
                 agent._run_checked_tool = AsyncMock(return_value=raw)
-                before = set((self.root / ".bear-code" / "tool-results").glob("*.txt"))
+                before = set((self.root / ".agent-rig" / "tool-results").glob("*.txt"))
                 agent._begin_tool_round((str(i), "run_shell") for i in range(10))
                 for i in range(10):
                     preview = await agent._run_tracked_tool(str(i), "run_shell", {})
                     self.assertLess(len(preview), 7000)
-                after = set((self.root / ".bear-code" / "tool-results").glob("*.txt"))
+                after = set((self.root / ".agent-rig" / "tool-results").glob("*.txt"))
                 self.assertEqual(len(after - before), 10)
                 self.assertTrue(all(path.read_text() == raw for path in after - before))
                 self.assertEqual(len(serializations), 21)
@@ -156,7 +156,7 @@ class RuntimeBoundariesTests(unittest.IsolatedAsyncioTestCase):
                 restored.restore_session(saved)
                 messages = restored._openai_messages if agent.use_openai else restored._anthropic_messages
                 self.assertLess(len(json.dumps(messages)), 70000)
-                self.assertEqual(set((self.root / ".bear-code" / "tool-results").glob("*.txt")), after)
+                self.assertEqual(set((self.root / ".agent-rig" / "tool-results").glob("*.txt")), after)
 
     async def test_large_failure_classification_survives_preview_truncation(self):
         agent = self.agent()

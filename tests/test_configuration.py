@@ -28,8 +28,8 @@ class ConfigurationTests(unittest.TestCase):
             ({"API": "https://proxy.test/anthropic", "APIKEY": "generic",
               "OPENAI_API_KEY": "openai"}, " https://override.test/v1 ",
              ("https://override.test/v1", "generic", True)),
-            ({"API": " ", "APIKEY": " ", "MINI_CLAUDE_API_BASE": "https://legacy.test/v1",
-              "MINI_CLAUDE_API_KEY": "legacy"}, None,
+            ({"API": " ", "APIKEY": " ", "AGENTRIG_API_BASE": "https://legacy.test/v1",
+              "AGENTRIG_API_KEY": "legacy"}, None,
              ("https://legacy.test/v1", "legacy", True)),
             ({"API": "https://api.anthropic.com/v1", "APIKEY": "generic"}, None,
              ("https://api.anthropic.com/v1", "generic", False)),
@@ -41,12 +41,12 @@ class ConfigurationTests(unittest.TestCase):
     def test_cli_and_web_use_the_same_environment_defaults(self):
         environment = {
             "APIKEY": "fake-key", "API": "https://proxy.test/anthropic", "MODEL": "custom-model",
-            "BEAR_INPUT_PRICE_PER_MILLION": "1.5", "BEAR_OUTPUT_PRICE_PER_MILLION": "4.5",
-            "BEAR_SHUTDOWN_TIMEOUT": "7.5", "BEAR_CONTEXT_WINDOW": "64000",
-            "BEAR_SKILL_CONCURRENCY": "3", "BEAR_SKILL_QUEUE_LIMIT": "8",
+            "AGENTRIG_INPUT_PRICE_PER_MILLION": "1.5", "AGENTRIG_OUTPUT_PRICE_PER_MILLION": "4.5",
+            "AGENTRIG_SHUTDOWN_TIMEOUT": "7.5", "AGENTRIG_CONTEXT_WINDOW": "64000",
+            "AGENTRIG_SKILL_CONCURRENCY": "3", "AGENTRIG_SKILL_QUEUE_LIMIT": "8",
         }
         with patch.dict(os.environ, environment, clear=True), \
-                patch("sys.argv", ["bear-code"]), patch("agents.main._load_env_file"), \
+                patch("sys.argv", ["agent-rig"]), patch("agents.main._load_env_file"), \
                 patch("agents.main.Agent") as agent, patch("agents.main.run_repl", new=AsyncMock()):
             cli.main()
             app = WebApp()
@@ -66,10 +66,10 @@ class ConfigurationTests(unittest.TestCase):
     def test_cli_overrides_environment_and_accepts_zero_prices(self):
         environment = {
             "APIKEY": "fake-key", "API": "https://proxy.test/anthropic", "MODEL": "env-model",
-            "BEAR_INPUT_PRICE_PER_MILLION": "invalid", "BEAR_OUTPUT_PRICE_PER_MILLION": "invalid",
-            "BEAR_CONTEXT_WINDOW": "invalid",
+            "AGENTRIG_INPUT_PRICE_PER_MILLION": "invalid", "AGENTRIG_OUTPUT_PRICE_PER_MILLION": "invalid",
+            "AGENTRIG_CONTEXT_WINDOW": "invalid",
         }
-        arguments = ["bear-code", "--model", "cli-model", "--api-base", "https://override.test/v1",
+        arguments = ["agent-rig", "--model", "cli-model", "--api-base", "https://override.test/v1",
                      "--input-price", "0", "--output-price", "0", "--context-window", "32000"]
         with patch.dict(os.environ, environment, clear=True), \
                 patch("sys.argv", arguments), patch("agents.main._load_env_file"), \
@@ -94,14 +94,14 @@ class ConfigurationTests(unittest.TestCase):
             self.assertEqual(defaults["background_skill_concurrency"], 2)
             self.assertEqual(defaults["background_skill_queue_limit"], 16)
             self.assertIsNone(defaults["context_window"])
-        with patch.dict(os.environ, {"MODEL": "", "MINI_CLAUDE_MODEL": "legacy", "BEAR_CONTEXT_WINDOW": "128000"}, clear=True):
+        with patch.dict(os.environ, {"MODEL": "", "AGENTRIG_MODEL": "legacy", "AGENTRIG_CONTEXT_WINDOW": "128000"}, clear=True):
             options = resolve_agent_options(model="", context_window=0)
             self.assertEqual(options["model"], "legacy")
             self.assertEqual(options["context_window"], 128000)
 
     def test_explicit_web_options_skip_environment_defaults(self):
         options = {"model": "explicit", "api_key": "fake"}
-        with patch.dict(os.environ, {"BEAR_SHUTDOWN_TIMEOUT": "invalid"}, clear=True):
+        with patch.dict(os.environ, {"AGENTRIG_SHUTDOWN_TIMEOUT": "invalid"}, clear=True):
             app = WebApp(options=options)
             try:
                 self.assertIs(app.options, options)

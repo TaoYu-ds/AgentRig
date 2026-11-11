@@ -145,7 +145,7 @@ class WebHttpStreamTests(unittest.TestCase):
         view = app.conversations[state["id"]]
         client = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=2)
         self.addCleanup(client.close)
-        cookie = {"Cookie": "bear_web=" + app.auth}
+        cookie = {"Cookie": "agentrig_web=" + app.auth}
         client.request("GET", "/conversation-state.mjs", headers=cookie)
         response = client.getresponse()
         self.assertEqual(response.status, 200)

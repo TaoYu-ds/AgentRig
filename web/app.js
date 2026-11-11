@@ -38,7 +38,7 @@ chatResizeObserver.observe(document.querySelector('.chat-content'));
 
 async function api(path, body) {
   const response = await fetch(path, {method: body === undefined ? 'GET' : 'POST', credentials:'same-origin',
-    headers: body === undefined ? {} : {'Content-Type':'application/json','X-Bear-CSRF':config.csrf},
+    headers: body === undefined ? {} : {'Content-Type':'application/json','X-AgentRig-CSRF':config.csrf},
     body: body === undefined ? undefined : JSON.stringify(body)});
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || `请求失败 (${response.status})`);
@@ -47,7 +47,7 @@ async function api(path, body) {
 function toast(message) { $('toast').textContent = message; $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => {$('toast').hidden = true;}, 6000); }
 function setConnection(ok) { $('connection-dot').classList.toggle('offline', !ok); $('connection-label').textContent = ok ? '本地服务已连接' : '连接中断，正在重连'; }
 const run = fn => (...args) => Promise.resolve().then(() => fn(...args)).catch(error => toast(error.message));
-function storageKey() {return 'bear-web-session:' + config.path;}
+function storageKey() {return 'agentrig-web-session:' + config.path;}
 function remember(id) {try {localStorage.setItem(storageKey(), id);} catch {/* Storage is optional. */}}
 function recall() {try {return localStorage.getItem(storageKey());} catch {return null;}}
 
@@ -108,7 +108,7 @@ function setPage(next) {
   $('workspace').hidden = next !== 'workspace'; $('library-page').hidden = next === 'workspace';
   $('toggle-inspector').hidden = next !== 'workspace'; $('header-mode').hidden = next !== 'workspace';
   $('breadcrumb-title').textContent = next === 'workspace' ? (current?.title || '新会话') : pageNames[next];
-  document.title = `Bear Code · ${pageNames[next]}`;
+  document.title = `AgentRig · ${pageNames[next]}`;
   if (next !== 'workspace') {renderLibrary(); loadLibrary().catch(error => toast(error.message));}
   closeSidebar();
 }
@@ -132,7 +132,7 @@ function entryHTML(entry, index) {
   const streaming = assistant && current.busy && index === current.entries.length - 1;
   const cached = messageHTML.get(entry.id);
   if (cached && cached.text === entry.text && cached.role === entry.role && cached.streaming === streaming) return cached.html;
-  const html = `<article class="message ${assistant ? 'assistant-message':'user-message'}"><div class="avatar ${assistant ? 'assistant':''}">${assistant ? 'B':'你'}</div><div class="message-body"><div class="message-heading">${assistant ? 'Bear Code':'你'}${streaming ? '<span class="stream-label">生成中</span>':''}</div><div class="message-content">${markdown(entry.text)}</div></div></article>`;
+  const html = `<article class="message ${assistant ? 'assistant-message':'user-message'}"><div class="avatar ${assistant ? 'assistant':''}">${assistant ? 'B':'你'}</div><div class="message-body"><div class="message-heading">${assistant ? 'AgentRig':'你'}${streaming ? '<span class="stream-label">生成中</span>':''}</div><div class="message-content">${markdown(entry.text)}</div></div></article>`;
   messageHTML.set(entry.id,{text:entry.text,role:entry.role,streaming,html});
   if (messageHTML.size > 1000) messageHTML.delete(messageHTML.keys().next().value);
   return html;
@@ -203,7 +203,7 @@ function renderLibraryResults() {
   const isMemory = page === 'memory', candidates = !isMemory && skillTab === 'candidates';
   const items = isMemory ? library.memories : candidates ? library.candidates : library.skills;
   const rows = items.map((item,index) => ({item,index})).filter(({item}) => JSON.stringify(item).toLowerCase().includes(filter.toLowerCase()));
-  if (!rows.length) {$('library-results').innerHTML = filter ? empty('没有匹配的内容','换个关键词试试。') : empty(isMemory ? '还没有长期记忆' : candidates ? '暂无候选变更' : '还没有可用的 Skills',isMemory ? 'Agent 在执行任务时可以保存记忆，已有记忆会自动出现在这里。' : candidates ? '在线学习生成的候选保存在隔离区，审核或评测后才能发布。' : '在项目 .bear/skills/ 中添加 SKILL.md，或通过 Agent 创建一个 Skill。');return;}
+  if (!rows.length) {$('library-results').innerHTML = filter ? empty('没有匹配的内容','换个关键词试试。') : empty(isMemory ? '还没有长期记忆' : candidates ? '暂无候选变更' : '还没有可用的 Skills',isMemory ? 'Agent 在执行任务时可以保存记忆，已有记忆会自动出现在这里。' : candidates ? '在线学习生成的候选保存在隔离区，审核或评测后才能发布。' : '在项目 .agent-rig/skills/ 中添加 SKILL.md，或通过 Agent 创建一个 Skill。');return;}
   $('library-results').innerHTML = `<table class="data-table"><thead><tr><th>${isMemory ? '记忆':'名称'}</th><th>${candidates ? '候选说明':'描述'}</th><th>${isMemory ? '类型':candidates ? '状态':'调用'}</th></tr></thead><tbody>${rows.map(({item,index}) => {
     const name = candidates ? item.skill : item.name;
     const desc = candidates ? item.write_input?.description || item.write_input?.lesson || (item.action === 'merge' ? '合并到现有 Skill':'新增 Skill') : item.description;

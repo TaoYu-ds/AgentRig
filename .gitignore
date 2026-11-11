@@ -195,12 +195,12 @@ cython_debug/
 .task_outputs/
 .tasks/
 .teams/
-.bear/
-.bear/folding-eval/
-.bear/sessions/*.folded-memory.jsonl
-.bear/sessions/*.folded-memory.latest.json
-.bear/sessions/*.lock
-.bear/skills/**/*.lock
+.agent-rig/
+.agent-rig/folding-eval/
+.agent-rig/sessions/*.folded-memory.jsonl
+.agent-rig/sessions/*.folded-memory.latest.json
+.agent-rig/sessions/*.lock
+.agent-rig/skills/**/*.lock
 
 # Ruff stuff:
 .ruff_cache/

@@ -111,7 +111,7 @@ class SessionImprovementTests(unittest.TestCase):
 
     def test_unchanged_plan_keeps_its_original_plan_file(self):
         data = self.saved("plan", mode="plan")
-        plan = self.root / ".bear/plans/original.md"
+        plan = self.root / ".agent-rig/plans/original.md"
         plan.parent.mkdir(parents=True)
         plan.write_text("the approved plan draft")
         data["runtimeState"]["planFilePath"] = str(plan)
@@ -228,7 +228,7 @@ class SessionImprovementTests(unittest.TestCase):
         view.ensure_agent()
 
     def artifact(self, name):
-        path = self.root / ".bear-code/tool-results" / name
+        path = self.root / ".agent-rig/tool-results" / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("full output")
         os.utime(path, (1, 1))

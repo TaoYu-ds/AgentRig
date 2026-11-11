@@ -9,13 +9,13 @@ from .storage import state_lock, write_json
 
 
 def trust_file() -> Path:
-    return Path.home() / ".bear" / "trusted-projects.json"
+    return Path.home() / ".agent-rig" / "trusted-projects.json"
 
 
 def project_fingerprint(project: Path | None = None) -> str:
     project = (project or Path.cwd()).resolve()
     digest = hashlib.sha256(str(project).encode())
-    for relative in (".bear/settings.json", ".mcp.json"):
+    for relative in (".agent-rig/settings.json", ".mcp.json"):
         path = project / relative
         digest.update(relative.encode())
         digest.update(path.read_bytes() if path.is_file() else b"<missing>")

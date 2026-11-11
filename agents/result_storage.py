@@ -32,7 +32,7 @@ def persist_tool_result(tool_name: str, result: str, *, reuse_existing: bool = F
     if size <= MAX_INLINE_RESULT_BYTES:
         return {"result": result}
 
-    directory = Path.home() / ".bear-code" / "tool-results"
+    directory = Path.home() / ".agent-rig" / "tool-results"
     safe_name = re.sub(r"[^A-Za-z0-9_-]", "_", tool_name)[:80]
     identity = hashlib.sha256(encoded).hexdigest() if reuse_existing else uuid.uuid4().hex
     path = directory / f"{identity}-{safe_name}.txt"

@@ -214,7 +214,7 @@ class RuntimeFixTests(unittest.IsolatedAsyncioTestCase):
                 stack.enter_context(patch('agents.skill_evolution.get_evolution_dir', return_value=root / 'evolution'))
                 stack.enter_context(patch('agents.skill_evolution._skills_root', return_value=root / 'skills'))
                 stack.enter_context(patch('agents.tools._check_permission_rules', return_value=rule))
-                stack.enter_context(patch.dict(os.environ, {'BEAR_SKILL_USAGE_PRUNE_MIN_RETRIEVED': '1'}))
+                stack.enter_context(patch.dict(os.environ, {'AGENTRIG_SKILL_USAGE_PRUNE_MIN_RETRIEVED': '1'}))
                 stack.enter_context(patch('agents.online_skill_evolution.judge_retrieved_skill_usage', new=AsyncMock(
                     return_value=[{'name': 'demo', 'source': 'user', 'skill_dir': str(skill_dir),
                                    'relevant': False, 'used': False}])))

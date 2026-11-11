@@ -3,7 +3,7 @@
 
 本文先讲思路，再讲操作与代码。贯穿全文的问题是：**经历了用户纠错之后，当前 Skill C 重新完成任务的表现如何？评测提出的候选 D 有没有更好？**
 
-当前入口是 BearCode REPL 中的 `/skill-eval`。它运行的是经人工确认的文本任务回归评测，调用辅助模型生成答案和评分，不执行完整 Agent 的工具操作。
+当前入口是 AgentRig REPL 中的 `/skill-eval`。它运行的是经人工确认的文本任务回归评测，调用辅助模型生成答案和评分，不执行完整 Agent 的工具操作。
 
 ## 一、先区分三个东西：对话证据、评测题目、Skill 版本
 
@@ -41,8 +41,8 @@
 
 评测器按 Skill 名称收集以下来源：
 
-- `.bear/skill-evolution/online_provenance.jsonl`：在线演化日志。
-- `.bear/skill-evolution/online_skill_provenance.json`：按 Skill 整理的来源索引。
+- `.agent-rig/skill-evolution/online_provenance.jsonl`：在线演化日志。
+- `.agent-rig/skill-evolution/online_skill_provenance.json`：按 Skill 整理的来源索引。
 - `online-eval/datasets/<lineage>/replay_pool_v2.jsonl`：已保存的来源样本池。
 - 旧版 `replay_pool.jsonl`：兼容导入，只作为待审核证据，不继承旧分组或分数。
 
@@ -416,7 +416,7 @@ D 测试不通过时，保留已有冠军。本轮不会根据测试失败再去
 
 ### 第一步：生成待审核清单
 
-在项目根目录启动 BearCode，输入：
+在项目根目录启动 AgentRig，输入：
 
 ```text
 /skill-eval
@@ -488,7 +488,7 @@ D 测试不通过时，保留已有冠军。本轮不会根据测试失败再去
 ### 第四步：查看逐题证据
 
 ```text
-.bear/skill-evolution/
+.agent-rig/skill-evolution/
 ├── online_provenance.jsonl
 ├── online_skill_provenance.json
 ├── online_eval_report.json

@@ -352,7 +352,7 @@ class Agent(BackgroundSkillTasks, ToolExecution, ContextRuntime, StreamAttempts,
 
     #生成一个用于保存 AI 计划（Plan）的 Markdown 文件的绝对路径。
     def _generate_plan_file_path(self) -> str:
-        d = Path.home() / ".bear" / "plans"
+        d = Path.home() / ".agent-rig" / "plans"
         d.mkdir(parents=True, exist_ok=True)
         return str(d / f"plan-{self.session_id}.md")
 
@@ -699,7 +699,7 @@ class Agent(BackgroundSkillTasks, ToolExecution, ContextRuntime, StreamAttempts,
     def _online_evolution_enabled(self) -> bool:
         if not self.enable_online_evolution:
             return False
-        raw = os.environ.get("BEAR_AUTO_SKILL_EVOLUTION", "1").strip().lower()
+        raw = os.environ.get("AGENTRIG_AUTO_SKILL_EVOLUTION", "1").strip().lower()
         return raw not in {"0", "false", "no", "off"}
 
     async def aclose(self) -> None:
@@ -809,7 +809,7 @@ class Agent(BackgroundSkillTasks, ToolExecution, ContextRuntime, StreamAttempts,
             retrieved_reference=window.get("retrieved_reference") or None,
             hint=str(window.get("hint") or ""),
             confirm_write=self._confirm_online_skill_write if interactive_confirm else self._confirm_background_online_skill_write,
-            target=os.environ.get("BEAR_AUTO_SKILL_TARGET", "project"),
+            target=os.environ.get("AGENTRIG_AUTO_SKILL_TARGET", "project"),
             stage_only=True,
         )
         if result.get("ok"):
@@ -962,7 +962,7 @@ class Agent(BackgroundSkillTasks, ToolExecution, ContextRuntime, StreamAttempts,
                 (restore_permission_mode and self.permission_mode == "default")):
             self.permission_mode = "plan"
             candidate = state.get("planFilePath")
-            plans_dir = (Path.home() / ".bear" / "plans").resolve()
+            plans_dir = (Path.home() / ".agent-rig" / "plans").resolve()
             self._plan_file_path = (candidate if isinstance(candidate, str) and Path(candidate).is_absolute()
                                    and Path(candidate).resolve().parent == plans_dir else self._generate_plan_file_path())
             self._pre_plan_mode = "default"

@@ -141,7 +141,7 @@ class RuntimeBoundaryTests(unittest.IsolatedAsyncioTestCase):
             agent._augment_user_message_with_skill_context = lambda msg: (msg, None)
             agent._chat_openai = AsyncMock(side_effect=RuntimeError("model failure"))
             agent._run_online_skill_evolution = AsyncMock(return_value={"ok": True})
-            with patch.dict(os.environ, {"BEAR_AUTO_SKILL_EVOLUTION": "1"}):
+            with patch.dict(os.environ, {"AGENTRIG_AUTO_SKILL_EVOLUTION": "1"}):
                 with self.assertRaises(RuntimeError):
                     await agent.chat("keep this feedback")
                 await agent.drain_background_skill_tasks()
@@ -154,7 +154,7 @@ class RuntimeBoundaryTests(unittest.IsolatedAsyncioTestCase):
         agent._skill_feedback_outbox = [{"messages": [], "next_user_feedback": "keep"}]
         with tempfile.TemporaryDirectory() as tmp, patch.object(agent, "_background_jobs_dir", return_value=Path(tmp)):
             with patch("agents.storage.write_json", side_effect=OSError("disk full")), \
-                    patch.dict(os.environ, {"BEAR_AUTO_SKILL_EVOLUTION": "1"}):
+                    patch.dict(os.environ, {"AGENTRIG_AUTO_SKILL_EVOLUTION": "1"}):
                 with self.assertRaisesRegex(OSError, "disk full"):
                     agent._flush_skill_feedback()
             self.assertEqual(len(agent._skill_feedback_outbox), 1)

@@ -43,7 +43,7 @@ def cleanup_candidates(days: int = 30) -> list[Path]:
         raise ValueError("retention days must be positive")
     cutoff = time.time() - days * 86400
     paths = []
-    results = Path.home() / ".bear-code" / "tool-results"
+    results = Path.home() / ".agent-rig" / "tool-results"
     referenced = _referenced_results(results)
     for path in results.glob("*.txt"):
         if (referenced is not None and path.name not in referenced

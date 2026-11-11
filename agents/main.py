@@ -47,8 +47,8 @@ from .online_skill_eval import format_online_skill_eval_async
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        prog="mini-claude",
-        description="Bear Code — a minimal coding agent",
+        prog="agent-rig",
+        description="AgentRig — a minimal coding agent",
         add_help=False,
     )
     parser.add_argument("prompt", nargs="*", help="One-shot prompt")
@@ -265,7 +265,7 @@ async def _run_repl(agent: Agent) -> None:
         if inp == "/skills":
             skills = discover_skills()
             if not skills:
-                print_info("No skills found. Add skills to .bear/skills/<name>/SKILL.md")
+                print_info("No skills found. Add skills to .agent-rig/skills/<name>/SKILL.md")
             else:
                 print_skill_entries(skills)
             continue
@@ -321,7 +321,7 @@ async def _run_repl(agent: Agent) -> None:
                 # Finish pending writes before reading provenance and active snapshots.
                 await agent.drain_background_skill_tasks()
                 side_query = agent._build_side_query(max_tokens=2400, require_complete=True)
-                judge_model = os.environ.get("BEAR_SKILL_JUDGE_MODEL")
+                judge_model = os.environ.get("AGENTRIG_SKILL_JUDGE_MODEL")
                 judge_query = agent._build_side_query(max_tokens=2400, require_complete=True, model_override=judge_model) if judge_model else None
                 print_info(await format_online_skill_eval_async(side_query=side_query, judge_side_query=judge_query))
             except (ValueError, OSError) as exc:
@@ -456,9 +456,9 @@ def main() -> None:
     _load_env_file()
 
     if args.help:
-        # 自定义帮助文本，展示 Bear Code 支持的启动参数和 REPL 内置命令。
+        # 自定义帮助文本，展示 AgentRig 支持的启动参数和 REPL 内置命令。
         print("""
-Usage: bear-code [options] [prompt]
+Usage: agent-rig [options] [prompt]
 
 Options:
   --yolo, -y          Skip all confirmation prompts (bypassPermissions mode)
@@ -501,14 +501,14 @@ REPL commands:
   /<skill-name>       Invoke a skill (e.g. /commit "fix types")
 
 Examples:
-  mini-claude "fix the bug in src/app.ts"
-  mini-claude --yolo "run all tests and fix failures"
-  mini-claude --plan "how would you refactor this?"
-  mini-claude --max-cost 0.50 --max-turns 20 "implement feature X"
-  MODEL=deepseek-chat APIKEY=sk-xxx API=https://api.deepseek.com/anthropic mini-claude "hello"
-  MODEL=gpt-4o OPENAI_API_KEY=sk-xxx OPENAI_BASE_URL=https://aihubmix.com/v1 mini-claude "hello"
-  mini-claude --resume
-  mini-claude  # starts interactive REPL
+  agent-rig "fix the bug in src/app.ts"
+  agent-rig --yolo "run all tests and fix failures"
+  agent-rig --plan "how would you refactor this?"
+  agent-rig --max-cost 0.50 --max-turns 20 "implement feature X"
+  MODEL=deepseek-chat APIKEY=sk-xxx API=https://api.deepseek.com/anthropic agent-rig "hello"
+  MODEL=gpt-4o OPENAI_API_KEY=sk-xxx OPENAI_BASE_URL=https://aihubmix.com/v1 agent-rig "hello"
+  agent-rig --resume
+  agent-rig  # starts interactive REPL
 """)
         sys.exit(0)
 

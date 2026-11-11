@@ -1,6 +1,6 @@
 """子代理系统 —— 内置代理类型 + 自定义代理类型的 fork-return 模式。
 镜像了 Claude Code 的 AgentTool：explore（只读）、plan（结构化）、general（全量工具），
-另外支持通过 .bear/agents/*.md 定义用户自定义代理。"""
+另外支持通过 .agent-rig/agents/*.md 定义用户自定义代理。"""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from .tools import tool_definitions, ToolDef
 READ_ONLY_TOOLS = {"read_file", "list_files", "grep_search"}
 
 # explore 子代理的系统提示词：定位为“代码库搜索专家”，强调只读、快速搜索和清晰汇报。
-EXPLORE_PROMPT = """You are a file search specialist for Mini Claude Code. You excel at thoroughly navigating and exploring codebases.
+EXPLORE_PROMPT = """You are a file search specialist for AgentRig Code. You excel at thoroughly navigating and exploring codebases.
 
 === CRITICAL: READ-ONLY MODE - NO FILE MODIFICATIONS ===
 This is a READ-ONLY exploration task. You are STRICTLY PROHIBITED from:
@@ -63,7 +63,7 @@ Return a structured plan with:
 4. Potential risks or considerations"""
 
 # general 子代理的系统提示词：允许使用除 agent 外的完整工具集，适合独立完成更复杂任务。
-GENERAL_PROMPT = """You are an agent for Mini Claude Code. Given the user's message, you should use the tools available to complete the task. Complete the task fully—don't gold-plate, but don't leave it half-done. When you complete the task, respond with a concise report covering what was done and any key findings — the caller will relay this to the user, so it only needs the essentials.
+GENERAL_PROMPT = """You are an agent for AgentRig Code. Given the user's message, you should use the tools available to complete the task. Complete the task fully—don't gold-plate, but don't leave it half-done. When you complete the task, respond with a concise report covering what was done and any key findings — the caller will relay this to the user, so it only needs the essentials.
 
 Your strengths:
 - Searching for code, configurations, and patterns across large codebases
@@ -79,7 +79,7 @@ Guidelines:
 
 # ─── Custom agent discovery ─────────────────────────────────
 
-# 自定义代理发现结果的进程内缓存；读取 .bear/agents/*.md 后会复用，避免每次调用 agent 工具都扫目录。
+# 自定义代理发现结果的进程内缓存；读取 .agent-rig/agents/*.md 后会复用，避免每次调用 agent 工具都扫目录。
 _cached_custom_agents: dict[str, dict] | None = None
 _cached_agent_signature = None
 
@@ -87,7 +87,7 @@ _cached_agent_signature = None
 def _discover_custom_agents() -> dict[str, dict]:
     """发现用户级和项目级自定义代理，并按代理名称返回配置。"""
     global _cached_custom_agents, _cached_agent_signature
-    roots = [Path.home() / ".bear" / "agents", Path.cwd() / ".bear" / "agents"]
+    roots = [Path.home() / ".agent-rig" / "agents", Path.cwd() / ".agent-rig" / "agents"]
     signature = []
     for root in roots:
         for path in sorted(root.glob("*.md")):
@@ -102,9 +102,9 @@ def _discover_custom_agents() -> dict[str, dict]:
 
     agents: dict[str, dict] = {}
     # User-level (lower priority)
-    _load_agents_from_dir(Path.home() / ".bear" / "agents", agents)
+    _load_agents_from_dir(Path.home() / ".agent-rig" / "agents", agents)
     # Project-level (higher priority, overwrites)
-    _load_agents_from_dir(Path.cwd() / ".bear" / "agents", agents)
+    _load_agents_from_dir(Path.cwd() / ".agent-rig" / "agents", agents)
 
     _cached_custom_agents = agents
     _cached_agent_signature = signature
@@ -192,6 +192,6 @@ def build_agent_descriptions() -> str:
 
 
 def reset_agent_cache() -> None:
-    """清空自定义代理缓存；测试或运行中刷新 .bear/agents 配置时使用。"""
+    """清空自定义代理缓存；测试或运行中刷新 .agent-rig/agents 配置时使用。"""
     global _cached_custom_agents
     _cached_custom_agents = None

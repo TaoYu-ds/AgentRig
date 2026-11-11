@@ -313,7 +313,7 @@ class WebTests(unittest.TestCase):
         self.addCleanup(client.close)
         client.request("GET","/")
         response = client.getresponse();cookie = response.getheader("Set-Cookie").split(";")[0]
-        self.assertIn(b'Bear Code',response.read())
+        self.assertIn(b'AgentRig',response.read())
         self.assertIn("HttpOnly",response.getheader("Set-Cookie"))
         self.assertIn("frame-ancestors 'none'",response.getheader("Content-Security-Policy"))
         client.request("GET","/api/config")
@@ -323,11 +323,11 @@ class WebTests(unittest.TestCase):
         self.assertNotIn("fake-secret",json.dumps(config))
         for extra in ({},{"Origin":"http://evil.example"},{"Host":"evil.example"},{"Sec-Fetch-Site":"cross-site"}):
             headers = {"Cookie":cookie,"Content-Type":"application/json"}
-            if extra:headers["X-Bear-CSRF"] = config["csrf"]
+            if extra:headers["X-AgentRig-CSRF"] = config["csrf"]
             headers.update(extra)
             client.request("POST","/api/sessions",body="{}",headers=headers)
             response = client.getresponse();self.assertEqual(response.status,403);response.read()
-        client.request("POST","/api/sessions",body="{}",headers={"Cookie":cookie,"Content-Type":"application/json","X-Bear-CSRF":config["csrf"]})
+        client.request("POST","/api/sessions",body="{}",headers={"Cookie":cookie,"Content-Type":"application/json","X-AgentRig-CSRF":config["csrf"]})
         response = client.getresponse();self.assertEqual(response.status,200);sid=json.loads(response.read())["id"]
         client.request("GET","/api/events?session="+sid,headers={"Cookie":cookie})
         response=client.getresponse();self.assertEqual(response.status,200)

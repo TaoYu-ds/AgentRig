@@ -128,7 +128,7 @@ class CompleteAuditRuntimeTests(unittest.IsolatedAsyncioTestCase):
             # output from tools that can still produce larger results.
             original = "a" * 40000 + "UNIQUE_MIDDLE" + "b" * 40000
             preview = agent._persist_large_result("read_file", original)
-            files = list((Path(tmp) / ".bear-code" / "tool-results").glob("*.txt"))
+            files = list((Path(tmp) / ".agent-rig" / "tool-results").glob("*.txt"))
             self.assertEqual(len(files), 1)
             self.assertIn("UNIQUE_MIDDLE", files[0].read_text())
             self.assertLess(len(preview), 7000)
@@ -444,8 +444,8 @@ class CompleteAuditDataTests(unittest.IsolatedAsyncioTestCase):
 
     def test_project_allow_rules_require_trust_and_changes_invalidate_it(self):
         home, project = self.root / "home", self.root / "project"
-        (project / ".bear").mkdir(parents=True)
-        settings = project / ".bear" / "settings.json"
+        (project / ".agent-rig").mkdir(parents=True)
+        settings = project / ".agent-rig" / "settings.json"
         settings.write_text(json.dumps({"permissions": {"allow": ["mcp_start"], "deny": ["write_file(blocked.txt)"]}}))
         with patch("pathlib.Path.home", return_value=home), patch("pathlib.Path.cwd", return_value=project):
             tools.reset_permission_cache()
@@ -459,8 +459,8 @@ class CompleteAuditDataTests(unittest.IsolatedAsyncioTestCase):
 
     def test_trust_invalidates_even_when_mcp_file_metadata_is_preserved(self):
         home, project = self.root / "home", self.root / "project"
-        (project / ".bear").mkdir(parents=True)
-        (project / ".bear" / "settings.json").write_text('{"permissions":{"allow":["mcp_start"]}}')
+        (project / ".agent-rig").mkdir(parents=True)
+        (project / ".agent-rig" / "settings.json").write_text('{"permissions":{"allow":["mcp_start"]}}')
         config = project / ".mcp.json"
         config.write_text('{"demo":{"command":"one"}}')
         with patch("pathlib.Path.home", return_value=home), patch("pathlib.Path.cwd", return_value=project):

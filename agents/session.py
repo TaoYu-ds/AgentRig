@@ -12,7 +12,7 @@ import re
 
 from .storage import append_jsonl, write_json
 
-SESSION_DIR = Path.home() / ".bear-code" / "sessions"
+SESSION_DIR = Path.home() / ".agent-rig" / "sessions"
 
 
 def title_from_text(text: str, *, limit: int = 40) -> str:
@@ -60,7 +60,7 @@ def _ensure_dir() -> None:
 
 
 def get_project_session_dir() -> Path:
-    d = Path.cwd() / ".bear" / "sessions"
+    d = Path.cwd() / ".agent-rig" / "sessions"
     d.mkdir(parents=True, exist_ok=True)
     return d
 

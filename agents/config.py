@@ -42,13 +42,13 @@ def resolve_api_config(cli_api_base: str | None = None) -> tuple[str | None, str
     Provider-specific URL variables select their protocol even for proxy URLs.
     """
     generic_api_key = _clean_env(os.environ.get("APIKEY")) or _clean_env(
-        os.environ.get("MINI_CLAUDE_API_KEY")
+        os.environ.get("AGENTRIG_API_KEY")
     )
     openai_api_key = _clean_env(os.environ.get("OPENAI_API_KEY"))
     anthropic_api_key = _clean_env(os.environ.get("ANTHROPIC_API_KEY"))
 
     generic_api_base = _clean_env(os.environ.get("API")) or _clean_env(
-        os.environ.get("MINI_CLAUDE_API_BASE")
+        os.environ.get("AGENTRIG_API_BASE")
     )
     openai_api_base = _clean_env(os.environ.get("OPENAI_BASE_URL"))
     anthropic_api_base = _clean_env(os.environ.get("ANTHROPIC_BASE_URL"))
@@ -83,23 +83,23 @@ def resolve_agent_options(
     """
     base, key, use_openai = resolve_api_config() if api_config is None else api_config
     return {
-        "model": model or os.environ.get("MODEL") or os.environ.get("MINI_CLAUDE_MODEL") or "deepseek-chat",
+        "model": model or os.environ.get("MODEL") or os.environ.get("AGENTRIG_MODEL") or "deepseek-chat",
         "api_key": key,
         "api_base": base if use_openai else None,
         "anthropic_base_url": None if use_openai else base,
         "api_protocol": "openai" if use_openai else "anthropic",
         "input_price_per_million": (
             input_price if input_price is not None
-            else float(os.environ.get("BEAR_INPUT_PRICE_PER_MILLION", "3"))
+            else float(os.environ.get("AGENTRIG_INPUT_PRICE_PER_MILLION", "3"))
         ),
         "output_price_per_million": (
             output_price if output_price is not None
-            else float(os.environ.get("BEAR_OUTPUT_PRICE_PER_MILLION", "15"))
+            else float(os.environ.get("AGENTRIG_OUTPUT_PRICE_PER_MILLION", "15"))
         ),
-        "shutdown_timeout": float(os.environ.get("BEAR_SHUTDOWN_TIMEOUT", "5")),
+        "shutdown_timeout": float(os.environ.get("AGENTRIG_SHUTDOWN_TIMEOUT", "5")),
         "context_window": context_window or (
-            int(os.environ["BEAR_CONTEXT_WINDOW"]) if os.environ.get("BEAR_CONTEXT_WINDOW") else None
+            int(os.environ["AGENTRIG_CONTEXT_WINDOW"]) if os.environ.get("AGENTRIG_CONTEXT_WINDOW") else None
         ),
-        "background_skill_concurrency": int(os.environ.get("BEAR_SKILL_CONCURRENCY", "2")),
-        "background_skill_queue_limit": int(os.environ.get("BEAR_SKILL_QUEUE_LIMIT", "16")),
+        "background_skill_concurrency": int(os.environ.get("AGENTRIG_SKILL_CONCURRENCY", "2")),
+        "background_skill_queue_limit": int(os.environ.get("AGENTRIG_SKILL_QUEUE_LIMIT", "16")),
     }
